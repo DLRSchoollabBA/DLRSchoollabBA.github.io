@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset='utf-8'>
+    <style>
+        .microscope {
+            display: flex;
+            width: 400px;
+            height: 600px;
+            align-items: center;
+            justify-content: center;
+            background-color: #033;
+            color: aliceblue;
+            font-family: Arial, sans-serif;
+            overflow: none;
+        }
+        
+        .imgcontainer {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            -mox-border-radius: 50%;
+            border: 2px solid palegoldenrod;
+            overflow: hidden;
+            display: inline-block;
+            position: relative;
+            background-color: #ddd;
+        }
+        
+        img .microscope {
+            width: 100%;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50%);
+            image-rendering: optimizeSpeed;
+            /*                     */
+            image-rendering: -moz-crisp-edges;
+            /* Firefox             */
+            image-rendering: -o-crisp-edges;
+            /* Opera               */
+            image-rendering: -webkit-optimize-contrast;
+            /* Chrome (and Safari) */
+            image-rendering: pixelated;
+            /* Chrome as of 2019   */
+            image-rendering: optimize-contrast;
+            /* CSS3 Proposed       */
+            -ms-interpolation-mode: nearest-neighbor;
+            /* IE8+                */
+        }
+        
+        input[type=range][orient=vertical] {
+            -webkit-appearance: slider-vertical;
+            writing-mode: bt-lr;
+        }
+        
+        .clickable {
+            border: 1px solid #aaa;
+            background-color: #666;
+            display: inline-block;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            color: #000;
+            cursor: pointer;
+            user-select: none;
+            border-radius: 10px;
+            -moz-border-radius: 10px;
+        }
+        
+        .table {
+            width: 100%;
+        }
+    </style>
+
+    <script>
+        var sharp = Math.floor(Math.random() * 60 + 20);
+        var img = null,
+            container = null;
+        var current_image = "orange1";
+        var zoom = 1,
+            light = false,
+            polarized = false;
+
+        function setBlur(value) {
+            img.style.filter = "blur(" + (Math.abs(value - sharp)) + "px)";
+        }
+
+        function setXY() {
+            var x = document.getElementById('x').value;
+            var y = 100 - document.getElementById('y').value;
+            img.style.transform = "translateX(-" + x + "%) translateY(-" + y + "%)";
+        }
+
+        function update() {
+            // Die Bilder müssen als .jpg im Unterordner img liegen. Der Stamm des Namens muss dem value der Proben-Option (unten) entsprechen und
+            // mit einem _n (normal) oder _p (polarisation) ergänzt werden. Beispiel: ./img/blau7_n.jpg und ./img/blau7_p.jpg 
+            var newimg = "Portaldata/24/Resources/images/ba/experimente/interaktive_lernmodule/" + current_image + (polarized ? "_p" : "_n") + ".jpg";
+            if (img.src != newimg) img.src = newimg;
+
+            var b = document.getElementById('light');
+            b.style.backgroundColor = light ? "#4f4" : "#666";
+
+            b = document.getElementById('polarisation');
+            b.style.backgroundColor = polarized ? "#4f4" : "#666";
+
+            var element = document.getElementById('container');
+            element.style.filter = "brightness(" + (light ? "100" : "10") + "%)";
+
+            var zb = document.getElementsByClassName("clickable");
+            for (var i = 0; i < zb.length; i++) {
+                zb.item(i).style.backgroundColor = (zb.item(i).id == "zoom" + zoom ? "#4f4" : "#666");
+            }
+        }
+
+        function togglePolarized() {
+            polarized = !polarized;
+            update();
+        }
+
+        function toggleLight() {
+            light = !light;
+            update();
+        }
+
+        function setZoom(value) {
+            zoom = value;
+            img.style.width = (value * 100) + "%";
+            sharp = Math.floor(Math.random() * 80 + 20);
+            setBlur(document.getElementById('blur').value);
+            setXY();
+            update();
+        }
+
+        function setSample(sample) {
+            current_image = sample;
+            update();
+        }
+
+        window.onload = function() {
+            img = document.getElementById('image');
+            container = document.getElementById('container');
+            polarized = false;
+            light = false;
+            zoom = 1;
+
+            document.getElementById('zoom1').checked = true;
+            document.getElementById('blur').value = 50;
+            update();
+        }
+
+        window.onunload = window.onload; // Reset der Elemente beim Aktualisieren der Seite
+    </script>
+<div class="microscope">&nbsp;</div>
+<link as="image" href="Portaldata/24/Resources/images/ba/experimente/interaktive_lernmodule/orange1_n.jpg" rel="prefetch" />
+<link as="image" href="Portaldata/24/Resources/images/ba/experimente/interaktive_lernmodule/orange1_p.jpg" rel="prefetch" />
+<link as="image" href="Portaldata/24/Resources/images/ba/experimente/interaktive_lernmodule/orange2_n.jpg" rel="prefetch" />
+<link as="image" href="Portaldata/24/Resources/images/ba/experimente/interaktive_lernmodule/orange2_p.jpg" rel="prefetch" />
+<div>
+<table border="1">
+	<tbody>
+		<tr>
+			<td>
+			<p>Probe<br />
+			<select id="probe" onchange="setSample(this.value);"><option value="orange1">Orange 1</option><option value="orange2">Orange 2</option> </select></p>
+			</td>
+			<td>
+			<p>&nbsp;</p>
+
+			<div class="clickable" id="light" onclick="toggleLight();">Beleuchtung</div>
+
+			<p>&nbsp;</p>
+
+			<p>&nbsp;</p>
+
+			<div class="clickable" id="polarisation" onclick="togglePolarized();">Polarisation</div>
+
+			<p>&nbsp;</p>
+			</td>
+			<td>
+			<p>Vergrößerung</p>
+
+			<div class="clickable" id="zoom1" onclick="setZoom(1);">1x</div>
+
+			<div class="clickable" id="zoom2" onclick="setZoom(2);">2x</div>
+
+			<div class="clickable" id="zoom4" onclick="setZoom(4);">4x</div>
+
+			<div class="clickable" id="zoom8" onclick="setZoom(8);">8x</div>
+
+			<p>&nbsp;</p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+<table border="1">
+	<tbody>
+		<tr>
+			<td><input id="y" max="100" min="0" oninput="setXY();" orient="vertical" type="range" value="50" /></td>
+			<td>
+			<div class="imgcontainer" id="container"><img id="image" src="img/orange1_n.jpg" /></div>
+			</td>
+			<td style="vertical-align: middle; text-align: center;">
+			<p>Schärfe<br />
+			<input id="blur" max="100" min="0" oninput="setBlur(this.value);" orient="vertical" type="range" value="50" /></p>
+			</td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td><input id="x" max="95" min="5" oninput="setXY();" type="range" value="50" /></td>
+		</tr>
+	</tbody>
+</table>
+</div>
