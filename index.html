@@ -97,7 +97,7 @@
         function update() {
             // Die Bilder müssen als .jpg im Unterordner img liegen. Der Stamm des Namens muss dem value der Proben-Option (unten) entsprechen und
             // mit einem _n (normal) oder _p (polarisation) ergänzt werden. Beispiel: ./img/blau7_n.jpg und ./img/blau7_p.jpg 
-            var newimg = "./" + current_image + (polarized ? "_p" : "_n") + ".jpg";
+            var newimg = "./img/" + current_image + (polarized ? "_p" : "_n") + ".jpg";
             if (img.src != newimg) img.src = newimg;
 
             var b = document.getElementById('light');
@@ -201,7 +201,7 @@
 		<tr>
 			<td><input id="y" max="100" min="0" oninput="setXY();" orient="vertical" type="range" value="50" /></td>
 			<td>
-			<div class="imgcontainer" id="container"><img id="image" src="./orange1_n.jpg" /></div>
+			<div class="imgcontainer" id="container"><img id="image" src="./img/orange1_n.jpg" /></div>
 			</td>
 			<td style="vertical-align: middle; text-align: center;">
 			<p>Schärfe<br />
