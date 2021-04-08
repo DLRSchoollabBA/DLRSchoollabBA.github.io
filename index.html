@@ -94,7 +94,7 @@
         function update() {
             // Die Bilder müssen als .jpg im Unterordner img liegen. Der Stamm des Namens muss dem value der Proben-Option (unten) entsprechen und
             // mit einem _n (normal) oder _p (polarisation) ergänzt werden. Beispiel: ./img/blau7_n.jpg und ./img/blau7_p.jpg 
-            var newimg = "Portaldata/24/Resources/images/ba/experimente/interaktive_lernmodule/" + current_image + (polarized ? "_p" : "_n") + ".jpg";
+            var newimg = "./img/" + current_image + (polarized ? "_p" : "_n") + ".jpg";
             if (img.src != newimg) img.src = newimg;
 
             var b = document.getElementById('light');
