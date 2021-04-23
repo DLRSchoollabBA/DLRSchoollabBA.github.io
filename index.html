@@ -72,7 +72,7 @@
             border-radius: 10px;
             -moz-border-radius: 10px;
         }
-		/* img .microscope {
+	img .microscope {
             width: 100%;
             top: 80%;
             left: 80%;
@@ -91,7 +91,7 @@
             /* CSS3 Proposed       */
             -ms-interpolation-mode: nearest-neighbor;
             /* IE8+                */
-        }*/
+        }
     </style>
     <script>
         /*            <td id='attempts' style="text-align:right">
@@ -251,17 +251,17 @@
             if (img.src != newimg) img.src = newimg;
 
             var b = document.getElementById('light');
-            b.style.backgroundColor = light ? "#4f4" : "#666";
+            b.style.backgroundColor = light ? "0f0" : "#666";
 
             b = document.getElementById('polarisation');
-            b.style.backgroundColor = polarized ? "#4f4" : "#666";
+            b.style.backgroundColor = polarized ? "#0f0" : "#666";
 
             var element = document.getElementById('container');
             element.style.filter = "brightness(" + (light ? "100" : "10") + "%)";
 
             var zb = document.getElementsByClassName("clickable");
             for (var i = 0; i < zb.length; i++) {
-                zb.item(i).style.backgroundColor = (zb.item(i).id == "zoom" + zoom ? "#4f4" : "#666");
+                zb.item(i).style.backgroundColor = (zb.item(i).id == "zoom" + zoom ? "#0f0" : "#666");
             }
         }
 
