@@ -28,7 +28,19 @@
 
         .microscope {
             /* Eine Klasse für das Mikroskop als ganzes */
-            width: 800px;
+            width: 700px;
+            height: 600px;
+            /* Display, align, justify: vertikales und horizontales Zentrieren der Tabelle im div */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #333;
+            color: aliceblue;
+            font-family: Arial, sans-serif;
+        }
+	.extratable {
+            /* Eine Klasse für das Mikroskop als ganzes */
+            width: 450px;
             height: 600px;
             /* Display, align, justify: vertikales und horizontales Zentrieren der Tabelle im div */
             display: flex;
@@ -299,7 +311,7 @@
 </div>
 </body>
 <div style="float: left">
-  <table>
+  <table class='extratable'>
     <tr>
 		<td class='mictd'>
 		<a href='img/Tabelle_Klassifizierung.png'>
