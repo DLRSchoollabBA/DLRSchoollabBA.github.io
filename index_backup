@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="utf-8">
+    <title>DLR_School_Lab - Meteorite</title>
+
+    <!-- icon für den Tab, Ansicht im Browser -->
+    <link rel="icon" href="img/DLR_Logo.png" type="image/icon type">
+
+    <!-- DLR Logo einfügen -->
+    <!--<img src="img/DLR_Logo_inverted.png" height="100" width="200" aligh="right"> -->
+    <!--             background:url(img/DLR_Logo_inverted2.png) no-repeat right top; -->
+
+    <style>
+        body,
+        html {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0px;
+            min-width: 640px;
+            min-height: 640px;
+	    overflow: hidden;
+        }
+
+        .microscope {
+            /* Eine Klasse für das Mikroskop als ganzes */
+            width: 700px;
+            height: 600px;
+            /* Display, align, justify: vertikales und horizontales Zentrieren der Tabelle im div */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #333;
+            color: aliceblue;
+            font-family: Arial, sans-serif;
+        }
+	.extratable {
+            /* Eine Klasse für das Mikroskop als ganzes */
+            width: 450px;
+            height: 600px;
+            /* Display, align, justify: vertikales und horizontales Zentrieren der Tabelle im div */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #333;
+            color: aliceblue;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Klasse für die Bildanzeige */
+        .micimgcontainer  {
+            width: 350px;
+            height: 350px;
+            border-radius: 50%;
+            -mox-border-radius: 50%;
+            border: 2px solid palegoldenrod;
+            display: inline-block;
+            overflow: hidden;
+            /* ohne ist das ganze Bild zu sehen */
+            position: relative;
+            background-color: #ddd;
+            /* Hintergrund"beleuchtung" */
+        }
+
+        .micimg {
+            width: 100%;
+            /* Bildausschnitt zentrieren */
+            top: 50%;
+            /* linke obere Ecke */
+            left: 50%;
+            /* in die Mitte */
+            /* und dann um die Hälfte nach links und oben */
+            transform: translateX(-50%) translateY(-50%);
+
+            /* Kantenglättung/Bildoptimierung abschalten */
+            image-rendering: optimizeSpeed;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -o-crisp-edges;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: pixelated;
+            image-rendering: optimize-contrast;
+            -ms-interpolation-mode: nearest-neighbor;
+        }
+
+        input[type=range][orient=vertical] {
+            -webkit-appearance: slider-vertical;
+            writing-mode: bt-lr;
+        }
+
+        .w280  {
+            width: 350px;
+        }
+
+        .h280  {
+            height: 350px;
+        }
+	.h240  {
+            height: 240px;    
+		
+	.w500  {
+            width: 500px;
+        }
+
+        .micclickable {
+            border: 2px solid #aaa;
+            display: inline-block;
+            background-color: #666;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            color: #000;
+            cursor: pointer;
+            user-select: none;
+            border-radius: 10px;
+            -moz-border-radius: 10px;
+        }
+
+        .mictable {
+            width: 100%;
+        }
+
+        .mictd {
+            text-align: center;
+            vertical-align: middle;
+        }
+	.micexp {
+            text-align: center;
+            vertical-align: sub;
+        }
+    </style>
+
+    <script>
+        // sharp ist Reglerwert, bei dem das Bild scharf ist: zufällig 
+        var sharp = Math.floor(Math.random() * 60 + 20);
+        // Variablen für Bild und Container des Bildes
+        var img = null,
+            container = null;
+        // Basisname des aktuellen Bildes
+        var current_image = "Rot1";
+        // Statusvariablen - werden von onLoad initialisiert
+        var zoom, light, polarized;
+
+        // Unschärfefilter anwenden
+        function setBlur(value) {
+            img.style.filter = "blur(" + (Math.abs(value - sharp)) + "px)";
+        }
+
+        // Bild korrekt hinschieben
+        function setXY() {
+            var x = - 1 * document.getElementById('x').value + 10;
+            var y = document.getElementById('y').value - 100 + 10;
+            console.log("shift ("+x+"|"+y+")");
+            img.style.transform = "translateX(" + x + "%) translateY(" + y + "%)";
+        }
+
+        // update wird bei Klicks auf Steuerelemente gebraucht, Schieben und Justieren triggern
+        // kein update 
+        function update() {
+            console.log("updating");
+            // Die Bilder müssen als .jpg im Unterordner img liegen. Der Stamm des Namens muss dem value der Proben-Option (unten) entsprechen und
+            // mit einem _n (normal) oder _p (polarisation) ergänzt werden. Beispiel: ./img/blau7_n.jpg und ./img/blau7_p.jpg 
+            var newimg = "./img/" + current_image + (polarized ? "_p" : "_n") + ".jpg";
+            if (img.src != newimg) img.src = newimg;
+            console.log("image " + newimg);
+
+            console.log("light: " + light + ", polarisation: " + polarized);
+            document.getElementById('light').style.backgroundColor = (light ? "#4f4" : "#666");
+            console.log(document.getElementById('light'));
+            document.getElementById('polarisation').style.backgroundColor = (polarized ? "#4f4" : "#666");
+
+            var element = document.getElementById('container');
+            element.style.filter = "brightness(" + (light ? "100" : "10") + "%)";
+
+            var clickables = document.getElementsByClassName("micclickable");
+            for (var i = 0; i < clickables.length; i++) {
+                let b = clickables.item(i);
+                if (b.id.startsWith("zoom")) {
+                    b.style.backgroundColor = (b.id == "zoom" + zoom ? "#4f4" : "#666");
+                }
+            }
+        }
+
+        // Funktionen für Steuerelemente, triggern updates
+        function togglePolarized() {
+            polarized = !polarized;
+            update();
+        }
+
+        function toggleLight() {
+            light = !light;
+            update();
+        }
+
+        function setZoom(value) {
+            zoom = value;
+            img.style.width = (value * 100) + "%";
+            sharp = Math.floor(Math.random() * 80 + 20);
+            setBlur(document.getElementById('blur').value);
+            setXY();
+            update();
+        }
+
+        function setSample(sample) {
+            current_image = sample;
+            update();
+        }
+
+        // anonyme Funktion zur Initialisierung nach dem Erzeugen der HTML-Elemente
+        window.onload = function () {
+            img = document.getElementById('image');
+            container = document.getElementById('container');
+            polarized = false;
+            light = false;
+            zoom = 2;
+
+            document.getElementById('zoom2').checked = true;
+            document.getElementById('blur').value = 50;
+            setZoom(zoom);
+            setXY();
+            update();
+        }
+
+        // onunload feuert beim Refresh der Seite (F5)
+        window.onunload = window.onload; // Reset der Elemente beim Aktualisieren der Seite
+    </script>
+</head>
+
+<body>
+    <div class='microscope'>
+
+        <link rel='prefetch' as='image' href='./img/Rot1_n.jpg'>
+        <link rel='prefetch' as='image' href='./img/Rot1_p.jpg'>
+        <link rel='prefetch' as='image' href='./img/Rot2_n.jpg'>
+        <link rel='prefetch' as='image' href='./img/Rot2_p.jpg'>
+	<link rel='prefetch' as='image' href='./img/Rot3_n.jpg'>
+        <link rel='prefetch' as='image' href='./img/Rot3_p.jpg'>
+	    <link rel='prefetch' as='image' href='./img/Blau1_n.jpg'>
+        <link rel='prefetch' as='image' href='./img/Blau1_p.jpg'>
+	<link rel='prefetch' as='image' href='./img/Blau2_n.jpg'>
+        <link rel='prefetch' as='image' href='./img/Blau2_p.jpg'>
+	    <link rel='prefetch' as='image' href='./img/Blau3_n.jpg'>
+        <link rel='prefetch' as='image' href='./img/Blau3_p.jpg'>
+	<link rel='prefetch' as='image' href='./img/Weiss1_n.jpg'>
+        <link rel='prefetch' as='image' href='./img/Weiss1_p.jpg'>
+        <link rel='prefetch' as='image' href='./img/Weiss2_n.jpg'>
+        <link rel='prefetch' as='image' href='./img/Weiss2_p.jpg'>
+	<link rel='prefetch' as='image' href='./img/Weiss3_n.jpg'>
+        <link rel='prefetch' as='image' href='./img/Weiss3_p.jpg'>
+	    
+<div style="float: left;margin-right:10px">
+	<table class='mictable'>
+            <tr>
+                <td class='mictd'>
+                    <p>Probe</p>
+                    <p>
+                        <select id='probe' onChange='setSample(this.value);'>
+                            <option value='Rot1'>Rot 1</option>
+                            <option value='Rot2'>Rot 2</option>
+			    <option value='Rot3'>Rot 3</option>
+				 <option value='Blau1'>Blau 1</option>
+                            <option value='Blau2'>Blau 2</option>
+				<option value='Blau3'>Blau 3</option>
+			    <option value='Weiss1'>Weiß 1</option>
+                            <option value='Weiss2'>Weiß 2</option>
+			    <option value='Weiss3'>Weiß 3</option>
+				
+                        </select>
+                    </p>
+                </td>
+		<td class='mictd'>
+                    <p>
+                    <div class='micclickable' id='light' onClick="toggleLight();">Beleuchtung</div>
+                    <div class='micclickable' id='polarisation' onClick="togglePolarized();">Polarisation</div>
+                    </p>
+                </td>
+                <td class='mictd'>
+                    <p>Vergrößerung<br />
+                    <div class='micclickable' id='zoom2' onClick='setZoom(2);'>1x</div>
+                    <div class='micclickable' id='zoom4' onClick='setZoom(4);'>2x</div>
+                    <div class='micclickable' id='zoom8' onClick='setZoom(8);'>4x</div>
+                    <div class='micclickable' id='zoom12' onClick='setZoom(12);'>8x</div>
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td class='mictd'>
+                    <input class='h280' type='range' min='0' max='100' id="y" value="50" orient='vertical'
+                        onInput='setXY();'>
+                </td>
+                <td class='mictd'>
+                    <div class='micimgcontainer' id='container'>
+                        <img id='image' src='img/Rot1_n.jpg' />
+                    </div>
+                </td class='mictd'>
+                <td  class='mictd' style='vertical-align: middle; text-align: center;'>
+
+                    <p>
+                        Schärfe<br />
+                        <input class='h280' type='range' min='0' max='100' id='blur' value='50' orient='vertical'
+                            onInput='setBlur(this.value);'>
+                    </p>
+
+                </td>
+            </tr>
+            <tr>
+                <td class='mictd'></td>
+                <td class='mictd'>
+                    <input class='w280' type='range' min='0' max='100' id="x" value="50" onInput='setXY();'>
+                </td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+<div style="float: left">
+  <table class='extratable'>
+    <tr>
+		<td class='mictd'>
+		<a href='img/Tabelle_Klassifizierung.png' target='popup'>
+		<img padding-top='10px' src='img/Tabelle_Klassifizierung_400.png' id='Klassifizierung' alt="Klassifizierung" />
+		</a>
+		<p>&nbsp;</p> 
+		</td>
+	    
+    </tr> 
+	
+	  <tr>
+		<td class='mictd'>
+		<a href='img/EigenschaftenvonMeteoriten.png' target='popup'>
+		<img src='img/EigenschaftenvonMeteoriten_400.png' padding-top='100px' id='Eigenschaftstabelle' alt="Eigenschaftstabelle" />
+		</a>
+		</td>
+	  </tr>
+	  <tr>
+                <td class='mictd'>
+			<p>&nbsp;</p>
+<a href="https://dlrschoollabba.github.io/Meteorite-Kraterberechnung">Größenberechnung.</a>
+<a href="https://dlrschoollabba.github.io/Meteorite-Energieberechnung">Energieberechnung.</a>
+			</td>
+	    
+    </tr> 
+  </table>
+	
+</div>    
+</html>
